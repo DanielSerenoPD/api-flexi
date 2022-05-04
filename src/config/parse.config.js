@@ -20,6 +20,7 @@ module.exports = {
   masterKey: MASTER_KEY,
   appName: APP_NAME,
   serverURL: serverURL,
-  databaseUri: databaseUri
+  databaseUri: databaseUri,
+  sessionLenght: 31336000*2
 };
 
