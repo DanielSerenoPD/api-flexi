@@ -8,8 +8,8 @@ var storage = multer.diskStorage({
     cb(null, 'uploads')
   },
   filename: function (req, file, cb) {
-    let ext = file.originalname.substring(file.originalname.lastIndexOf('.'), file.originalname.length);
-    cb(null, file.fieldname+ext)
+    //let ext = file.originalname.substring(file.originalname.lastIndexOf('.'), file.originalname.length);
+    cb(null, file.fieldname)
   }
 })
  
