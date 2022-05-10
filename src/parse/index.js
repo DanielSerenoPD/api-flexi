@@ -5,7 +5,6 @@ const init = function(){
   Parse.initialize(config.appId, null, config.masterKey);
   Parse.serverURL = config.serverURL
 };
-
 module.exports = {
   init: init,
   Parse:Parse,
