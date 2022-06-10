@@ -1,16 +1,16 @@
 var Parse = require("parse/node");
-var Message = Parse.Object.extend("ELearning");
-var ELearning = Parse.Object.extend("ELearning");
+var Message = Parse.Object.extend("News");
+var News = Parse.Object.extend("News");
 const fs = require("fs");
 var { ruta } = require("../../Path.js");
 const path = require("path");
 module.exports = {
-    getLearning: async(req, res, next)=>{
+    getNews: async(req, res, next)=>{
         try{
         let search = req.query.search ? req.query.search: '';
         let contains = req.query.contains ? req.query.contains: '';
         let skip = req.query.skip ? req.query.skip: 0;
-        var query = new Parse.Query(ELearning)
+        var query = new Parse.Query(News)
         //query.skip(options && !!options.skip ? options.skip : 0);
         if(search !== ''){
             console.log("search")
@@ -27,24 +27,23 @@ module.exports = {
             query.limit(10000);
         }
         let results = await query.find();
-        let learnings = []
+        let news = []
         let aux = "";
         for(let item of results){
-        let learning = {}
-        learning.id = item.id;
-        learning.nameCourse = item.get('nameCourse');
-        learning.nameOrganization = item.get('nameOrganization');
-        learning.date = item.get('date');
-        learning.url = item.get('url')
-        aux = JSON.stringify(item.get('imagePreview'));
-        console.log(learning.imagePreview)
-        learning.image = aux.split('url":"')[1];
-        learning.image =  learning.image.substring(0,learning.image.length-2)
-        learning.filters = JSON.stringify(item.get('filters'));
-
-        learnings.push(learning);
+        let newItem = {}
+        newItem.id = item.id;
+        newItem.name = item.get('name');
+        newItem.body = item.get('body');
+        newItem.author = item.get('author');
+        newItem.date = item.get('date');
+        console.log(item.get('date'))
+        newItem.userLikes = item.get('userLikes').length;
+        newItem.userDislikes = item.get('userDislikes').length;
+        newItem.image = item.get('previewImage')?item.get('previewImage').url():'';
+        newItem.filters = JSON.stringify(item.get('filters'));
+        news.push(newItem);
     }
-    return res.status(200).json({learning:learnings});
+    return res.status(200).json({news:news});
         }
         catch(e){
             console.log(e)
@@ -52,26 +51,29 @@ module.exports = {
         }
        
     },
-    createLearning: async(req, res, next)=>{
+    createNews: async(req, res, next)=>{
        
         try{
             console.log(req.body)
-            if(req.body.imagePreview){
-            let pathImage = req.body.imagePreview;
+
+             req.body.userLikes = []
+             req.body.userDislikes = [];
+            if(req.body.previewImage){
+            let pathImage = req.body.previewImage;
             let file = fs.readFileSync(
-                path.join(ruta + "/uploads/", req.body.imagePreview)
+                path.join(ruta + "/uploads/", req.body.previewImage)
               );
                if(file){
                 var encode_image = new Buffer(file).toString('base64');
  const fileP = new Parse.File(pathImage, { base64: encode_image })
-            req.body.imagePreview = fileP;
-            req.body.date = new Date(req.body.date)
+            req.body.previewImage = fileP;
             fs.unlinkSync(
                 path.join(ruta + "/uploads/", pathImage)
               );}}
-              let learning = new ELearning();
-              let result = await learning.save(req.body)
-       return res.status(200).json({learning:result});
+              req.body.date = new Date(req.body.date)
+              let news = new News();
+              let result = await news.save(req.body)
+       return res.status(200).json({news:result});
        
         }
         catch(e){
@@ -80,37 +82,37 @@ module.exports = {
         }
        
     },
-    updateLearning: async(req, res, next)=>{
+    updateNews: async(req, res, next)=>{
         console.log(req.body)
         try{
             if(req.body.imagePreview){
                 console.log("mira")
                 let pathImage = req.body.imagePreview;
-                  if(fs.existsSync(path.join(ruta + "/uploads/", req.body.imagePreview))){
+                  if(fs.existsSync(path.join(ruta + "/uploads/", req.body.previewImage))){
                       console.log("miro")
                     let file = fs.readFileSync(
-                        path.join(ruta + "/uploads/", req.body.imagePreview)
+                        path.join(ruta + "/uploads/", req.body.previewImage)
                       );
                     var encode_image = new Buffer(file).toString('base64');
      const fileP = new Parse.File(pathImage, { base64: encode_image })
-                req.body.imagePreview = fileP;
+                req.body.previewImage = fileP;
                 fs.unlinkSync(
                     path.join(ruta + "/uploads/", pathImage)
                   );}else{
                       console.log("que paso")
-                      delete req.body.imagePreview
+                      delete req.body.previewImage
                   }
             }else{
                 console.log("queremos la champions")
-                delete req.body.imagePreview
+                delete req.body.previewImage
             }
             req.body.date ? req.body.date = new Date(req.body.date):null;
-        var query = new Parse.Query(ELearning)
+        var query = new Parse.Query(News)
         //query.equalTo('nominaId',req.body.nomina)
         let result = await query.get(req.body.id);
-        let learning = result
-       await learning.save(req.body);
-        return res.status(200).json({learning:learning});
+        let news = result
+       await news.save(req.body);
+        return res.status(200).json({news:news});
         }
         catch(e){
             console.log(e)
@@ -118,16 +120,16 @@ module.exports = {
         }
        
     },
-    deleteLearning: async(req, res, next)=>{
+    deleteNews: async(req, res, next)=>{
         console.log("xoy delete back")
         console.log(req.body)
         try{
-        var query = new Parse.Query(ELearning)
+        var query = new Parse.Query(News)
      
         let result = await query.get(req.body.id)
-        let learning = result
-       await learning.destroy();
-        return res.status(200).json({learning:learning});
+        let news = result
+       await news.destroy();
+        return res.status(200).json({news:news});
         }
         catch(e){
             console.log(e)

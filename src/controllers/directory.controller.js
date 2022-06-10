@@ -43,6 +43,9 @@ module.exports = {
         employee.retired = item.get('retired');
         employee.status = item.get('status');
         employee.imageUrl = item.get('imageUrl');
+        employee.razonSocial = item.get('razonSocial');
+        employee.segmentoPoblacion = item.get('segmentoPoblacion');
+        employee.planta = item.get('planta');
         employees.push(employee);
     }
     console.log("Data 2: "+employees.length)
@@ -101,6 +104,9 @@ module.exports = {
         employee.imageUrl = result[0].get('imageUrl');
         employee.location = result[0].get('location');
         employee.job = result[0].get('job');
+        employee.razonSocial =  result[0].get('razonSocial');
+        employee.segmentoPoblacion =  result[0].get('segmentoPoblacion');
+        employee.planta =  result[0].get('planta');
         return res.status(200).json({employee:employee});
         }
         catch(e){
